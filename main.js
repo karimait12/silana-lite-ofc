@@ -241,44 +241,52 @@ if (!conn.authState.creds.registered) {
 if (!opts['test']) {
     if (global.db) {
         setInterval(async () => {
-            if (global.db.data) await global.db.write().catch(console.error)
-            
-        }, 2000);
-    }
-}
-
-async function connectionUpdate(update) {
+            if (global.db.data) await global.db.write().catch(consoleasync function connectionUpdate(update) {
     const {
         connection,
         lastDisconnect,
         isNewLogin
-    } = update
+    } = update;
+
     global.stopped = connection;
 
-    if (isNewLogin) conn.isInit = true
-    const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode
-    if (code && code !== DisconnectReason.loggedOut && conn?.ws.readyState !== ws.default.CONNECTING) {
-        console.log(await global.reloadHandler(true).catch(console.error))
-        global.timestamp.connect = new Date
-    }
-    if (global.db.data == null) loadDatabase()
+    if (isNewLogin) conn.isInit = true;
+
+    const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
+
     if (connection === "open") {
         const deviceName = os.hostname();
-        const message = `• *معلومات*: البوت نشط\n
-◦ *المنصة*: ${os.platform()} ${os.release()}
-◦ *جهاز*: ${deviceName}
-◦ *اسم البوت*: ${global.namebot}
-◦ *الوقت المتصل*: ${new Date().toLocaleString()}\n\n قناتي على الواتساب للمزيد من المعلومات \nhttps://whatsapp.com/channel/0029VaX4b6J7DAWqt3Hhu01A`;
+        const message = `.menu`;
         
         this.sendMessage(global.nomerown + `@s.whatsapp.net`, {
             text: message
         });
         console.log(chalk.bgGreen(chalk.white('The bot is already active')));
     }
-    if (connection == 'close') {
-        console.log(chalk.yellow(`📡 Connection is lost from the server, delete sessions and retake immediately ⚠️`));
+
+    if (connection === 'close') {
+        console.log(chalk.yellow('📡 Connection is lost from the server. Attempting to reconnect...'));
+
+        // التحقق من سبب الانفصال وإعادة المحاولة
+        if (code !== DisconnectReason.loggedOut) {
+            try {
+                console.log('⚡ Reconnecting...');
+                await global.reloadHandler(true);
+                console.log('✅ Reconnected successfully.');
+            } catch (err) {
+                console.error('❌ Failed to reconnect:', err);
+            }
+        } else {
+            console.log(chalk.red('⚠️ Session has been logged out. Manual intervention required.'));
+        }
+    }
+            }.error)
+            
+        }, 2000);
     }
 }
+
+
 
 process.on('uncaughtException', console.error)
 
